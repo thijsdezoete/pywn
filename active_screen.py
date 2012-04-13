@@ -81,15 +81,34 @@ class Producivity(object):
                 new_height = self.height1/2
                 newX = 0
                 newY = new_height
+                self.ws.set_windowstate(window.get_xid(), 'div-down-scr-2')
             else:
                 new_width = self.width2
                 new_height = self.height2/2
                 newX = new_height + self.width1
                 newY = new_height
+                self.ws.set_windowstate(window.get_xid(), 'div-down-scr-2')
             window.set_geometry(0, 255, newX, newY, new_width, new_height)
 
     def move_up(self, window):
-        window.maximize()
+        msg = 'div-up-scr-%s' % (str(self._window_screen))
+        if self.ws.get_windowstate(window.get_xid()) != msg:
+            if self._window_screen == 1:
+                new_width = self.width1
+                new_height = self.height1/2
+                newX = 0
+                newY = 0
+                self.ws.set_windowstate(window.get_xid(), 'div-up-scr-1')
+            else:
+                new_width = self.width2
+                new_height = self.height2/2
+                newX = self.width1
+                newY = new_height
+                self.ws.set_windowstate(window.get_xid(), 'div-up-scr-2')
+                
+            window.set_geometry(0, 255, newX, newY, new_width, new_height)
+        else:
+            window.maximize()
 
     def detect_screens(self):
         import commands
@@ -161,13 +180,13 @@ class Producivity(object):
 if __name__ == '__main__':
     x = Producivity()
     x.init()
-    keystr_right = "<Ctrl>Right"
+    keystr_right = "<Ctrl><Shift>Right"
     keybinder.bind(keystr_right, x.main, "right")
-    keystr_left = "<Ctrl>Left"
+    keystr_left = "<Ctrl><Shift>Left"
     keybinder.bind(keystr_left, x.main, "left")
-    keystr_left = "<Ctrl>Down"
+    keystr_left = "<Ctrl><Shift>Down"
     keybinder.bind(keystr_left, x.main, "down")
-    keystr_left = "<Ctrl>Up"
+    keystr_left = "<Ctrl><Shift>Up"
     keybinder.bind(keystr_left, x.main, "up")
     try:
         gtk.main()
