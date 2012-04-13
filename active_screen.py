@@ -25,68 +25,68 @@ class Producivity(object):
         return False
 
     def move_right(self, window):
+
+        if window.is_maximized():
+            print "Maximized window"
+            window.unmaximize()
         (width1, height1) = self.screen1_dimension
         (width2, height2) = self.screen2_dimension
         continue_resize = True
         new_width = width1/2
         new_height = height1/2
         newY = 0
-        if window.is_maximized():
-            continue_resize = False
-            # maximize on other screen
-            if self._window_screen ==  1:
-                print 'window screen 1'
-                if self._window_screen != 1:
-                    newX = width1 + 10
-                    window.maximize()
-                    window.set_geometry(0, 255, newX, newY, newX, new_height)
-                    self._window_screen = 1
-                else:
-                    print 'window screen unmaximize and continue resize'
-                    # request unmaximize....
-                    window.unmaximize()
-                    continue_resize = True
-            else:
-                if self._window_screen != 2:
-                    newX = 0
-                    window.maximize()
-                    window.set_geometry(0, 255, newX, newY, newX, new_height)
-                    self._window_screen = 1
-                else: 
-                    window.unmaximize()
-                    continue_resize = True
+        #if window.is_maximized():
+        #    continue_resize = False
+        #    # maximize on other screen
+        #    if self._window_screen ==  1:
+        #        print 'window screen 1'
+        #        if self._window_screen != 1:
+        #            newX = width1 + 10
+        #            window.maximize()
+        #            window.set_geometry(0, 255, newX, newY, newX, new_height)
+        #            self._window_screen = 1
+        #        else:
+        #            print 'window screen unmaximize and continue resize'
+        #            # request unmaximize....
+        #            window.unmaximize()
+        #            continue_resize = True
+        #    else:
+        #        if self._window_screen != 2:
+        #            newX = 0
+        #            window.maximize()
+        #            window.set_geometry(0, 255, newX, newY, newX, new_height)
+        #            self._window_screen = 1
+        #        else: 
+        #            window.unmaximize()
+        #            continue_resize = True
 
-        if not continue_resize:
-            continue_resize = False
-            return
+        #if not continue_resize:
+        #    continue_resize = False
+        #    return
         
 
-        if self.ws.get_windowstate(window.get_xid()) == 'div-right-scr-1':
-            print 'move window from screen 1 to 2 move-continue: %s' % continue_resize
+        #if self.ws.get_windowstate(window.get_xid()) == 'div-right-scr-1':
+        #    print 'move window from screen 1 to 2 move-continue: %s' % continue_resize
+        #    self._window_screen = 2
 
-            newX = width1+10
-            window.set_geometry(0, 255, newX, newY, newX, new_height)
-            self._window_screen = 2
-            self.ws.set_windowstate(window.get_xid(), 'full-right-scr-2')
-
+        newY = 0
         if self._window_screen ==  1:
-
             new_width = width1/2
             new_height = height1
             newX = new_width 
-            newY = 0
             self.ws.set_windowstate(window.get_xid(), 'div-right-scr-1')
         else:
-            print 'Should get here'
             new_width = width2/2
             new_height = height2
             newX = new_width + width1
-            newY = 0
             self.ws.set_windowstate(window.get_xid(), 'div-right-scr-2')
-        print "x: %s, y: %s, width: %s, height: %s" % (newX, newY, width2, new_height)
-        window.set_geometry(0, 255, newX, newY, newX, new_height)
+        print "Moving (%s) to x: %s, y: %s, width: %s, height: %s" % (window.get_name(), newX, newY, new_width, new_height)
+        window.set_geometry(0, 255, newX, newY, new_width, new_height)
 
     def move_left(self, window):
+        if window.is_maximized():
+            print "Maximized window"
+            window.unmaximize()
         (width1, height1) = self.screen1_dimension
         (width2, height2) = self.screen2_dimension
         if self._window_screen ==  1:
@@ -103,20 +103,24 @@ class Producivity(object):
         window.set_geometry(0, 255, newX, newY, new_width, new_height)
         
     def move_down(self, window):
-        (width1, height1) = self.screen1_dimension
-        (width2, height2) = self.screen2_dimension
-        if self._window_screen ==  1:
-            new_width = width1
-            new_height = height1/2
-            newX = new_height
-            newY = new_height
+        if window.is_maximized():
+            print "Maximized window"
+            window.unmaximize()
         else:
-            new_width = width2
-            new_height = height2/2
-            newX = new_height + width1
-            newY = new_height
-        print "x: %s, y: %s, width: %s, height: %s" % (newX, newY, new_width, new_height)
-        window.set_geometry(0, 255, newX, newY, new_width, new_height)
+            (width1, height1) = self.screen1_dimension
+            (width2, height2) = self.screen2_dimension
+            if self._window_screen ==  1:
+                new_width = width1
+                new_height = height1/2
+                newX = 0
+                newY = new_height
+            else:
+                new_width = width2
+                new_height = height2/2
+                newX = new_height + width1
+                newY = new_height
+            print "x: %s, y: %s, width: %s, height: %s" % (newX, newY, new_width, new_height)
+            window.set_geometry(0, 255, newX, newY, new_width, new_height)
 
     def move_up(self, window):
         window.maximize()
@@ -186,4 +190,5 @@ if __name__ == '__main__':
     try:
         gtk.main()
     except KeyboardInterrupt, e:
+        wnck.wnck_shutdown()
         exit()
