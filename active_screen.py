@@ -27,122 +27,104 @@ class Producivity(object):
     def move_right(self, window):
 
         if window.is_maximized():
-            print "Maximized window"
             window.unmaximize()
-        (width1, height1) = self.screen1_dimension
-        (width2, height2) = self.screen2_dimension
-        continue_resize = True
-        new_width = width1/2
-        new_height = height1/2
+        new_width = self.width1/2
+        new_height = self.height1/2
         newY = 0
-        #if window.is_maximized():
-        #    continue_resize = False
-        #    # maximize on other screen
-        #    if self._window_screen ==  1:
-        #        print 'window screen 1'
-        #        if self._window_screen != 1:
-        #            newX = width1 + 10
-        #            window.maximize()
-        #            window.set_geometry(0, 255, newX, newY, newX, new_height)
-        #            self._window_screen = 1
-        #        else:
-        #            print 'window screen unmaximize and continue resize'
-        #            # request unmaximize....
-        #            window.unmaximize()
-        #            continue_resize = True
-        #    else:
-        #        if self._window_screen != 2:
-        #            newX = 0
-        #            window.maximize()
-        #            window.set_geometry(0, 255, newX, newY, newX, new_height)
-        #            self._window_screen = 1
-        #        else: 
-        #            window.unmaximize()
-        #            continue_resize = True
 
-        #if not continue_resize:
-        #    continue_resize = False
-        #    return
-        
+        if self._window_screen == 1 and self.ws.get_windowstate(window.get_xid()) == 'div-right-scr-1':
+            self._window_screen = 2
+            self.move_left(window)
+            return
 
-        #if self.ws.get_windowstate(window.get_xid()) == 'div-right-scr-1':
-        #    print 'move window from screen 1 to 2 move-continue: %s' % continue_resize
-        #    self._window_screen = 2
-
-        newY = 0
         if self._window_screen ==  1:
-            new_width = width1/2
-            new_height = height1
+            new_width = self.width1/2
+            new_height = self.height1
             newX = new_width 
             self.ws.set_windowstate(window.get_xid(), 'div-right-scr-1')
         else:
-            new_width = width2/2
-            new_height = height2
-            newX = new_width + width1
+            new_width = self.width2/2
+            new_height = self.height2
+            newX = new_width + self.width1
             self.ws.set_windowstate(window.get_xid(), 'div-right-scr-2')
-        print "Moving (%s) to x: %s, y: %s, width: %s, height: %s" % (window.get_name(), newX, newY, new_width, new_height)
         window.set_geometry(0, 255, newX, newY, new_width, new_height)
 
     def move_left(self, window):
         if window.is_maximized():
-            print "Maximized window"
             window.unmaximize()
-        (width1, height1) = self.screen1_dimension
-        (width2, height2) = self.screen2_dimension
+
+        if self._window_screen == 2 and self.ws.get_windowstate(window.get_xid()) == 'div-left-scr-2':
+            self._window_screen = 1
+            self.move_right(window)
+            return
+
         if self._window_screen ==  1:
-            new_width = width1/2
-            new_height = height1
+            new_width = self.width1/2
+            new_height = self.height1
             newX = 0 
             newY = 0
+            self.ws.set_windowstate(window.get_xid(), 'div-left-scr-1')
         else:
-            new_width = width2/2
-            new_height = height2
-            newX = width1
+            new_width = self.width2/2
+            new_height = self.height2
+            newX = self.width1
             newY = 0
-        print "x: %s, y: %s, width: %s, height: %s" % (newX, newY, new_width, new_height)
+            self.ws.set_windowstate(window.get_xid(), 'div-left-scr-2')
         window.set_geometry(0, 255, newX, newY, new_width, new_height)
         
     def move_down(self, window):
         if window.is_maximized():
-            print "Maximized window"
             window.unmaximize()
         else:
-            (width1, height1) = self.screen1_dimension
-            (width2, height2) = self.screen2_dimension
             if self._window_screen ==  1:
-                new_width = width1
-                new_height = height1/2
+                new_width = self.width1
+                new_height = self.height1/2
                 newX = 0
                 newY = new_height
             else:
-                new_width = width2
-                new_height = height2/2
-                newX = new_height + width1
+                new_width = self.width2
+                new_height = self.height2/2
+                newX = new_height + self.width1
                 newY = new_height
-            print "x: %s, y: %s, width: %s, height: %s" % (newX, newY, new_width, new_height)
             window.set_geometry(0, 255, newX, newY, new_width, new_height)
 
     def move_up(self, window):
         window.maximize()
-        #(width1, height1) = self.screen1_dimension
-        #(width2, height2) = self.screen2_dimension
-        #if self._window_screen ==  1:
-        #    new_width = width1
-        #    new_height = height1
-        #    newX = 0
-        #    newY = 0
-        #else:
-        #    new_width = width2
-        #    new_height = height2
-        #    newX = width1+1
-        #    newY = 0
-        #print "x: %s, y: %s, width: %s, height: %s" % (newX, newY, new_width, new_height)
-        #window.set_geometry(0, 255, newX, newY, new_width, new_height)
+
+    def detect_screens(self):
+        import commands
+        (exitcode, test) = commands.getstatusoutput("xrandr | grep ' connected'")
+
+        windows = {}
+        incr = 1
+
+        #FUGLY! REFACTOR CANDIDATE!
+        for entry in test.split("\n"):
+            windows[incr] = {}
+            first_occ = entry.split('x', 1)
+            blah = first_occ[0].split(' ')
+            for words in blah:
+                if words.isdigit():
+                    windows[incr]['width'] = int(words)
+            windows[incr]['height'] = int(first_occ[1].split('+')[0])
+            incr = incr +1
+
+        return windows
+
 
     def init(self):
-        self.screen1_dimension = (1680, 1050)
+        screens = self.detect_screens()
+        for i in range(0, len(screens)):
+            n =i+1
+            name = 'screen%s_dimension' % (str(n))
+            scr_w = 'width%s' % (str(n))
+            scr_h = 'height%s' % (str(n))
+            # magic to create: screenX_dimension (width, height) tuples
+            setattr(self, name, (screens[n]['width'], screens[n]['height']))
+            setattr(self, scr_w, screens[n]['width']) 
+            setattr(self, scr_h, screens[n]['height']) 
+
         self._window_screen = 0
-        self.screen2_dimension = (1280, 1024)
         self.screen = wnck.screen_get_default()
         self.ws = WindowState()
 
@@ -151,28 +133,28 @@ class Producivity(object):
         self.screen.force_update()
         windows = self.screen.get_windows()
         if len(windows) == 0:
-            print "No windows found"
+            #print "No windows found"
             return
 
         window = self.active_window(windows)
         if window is False:
-            print 'Couldnt find active window in: %s' % windows
+            #print 'Couldnt find active window in: %s' % windows
             return 
 
         state = self.ws.get_windowstate(window.get_xid())
-        print state
+        #print state
         # screen 1 or 2?
         (wX, wY, wWidth, wHeight) = window.get_client_window_geometry()
-        print "Window now:\nx: %s, y: %s, width: %s, height: %s" % (wX, wY, wWidth, wHeight)
-        if wX < 1680:
-            print 'Active window is on screen 1'
+        #print "Window now:\nx: %s, y: %s, width: %s, height: %s" % (wX, wY, wWidth, wHeight)
+        if wX < self.width1:
+            #print 'Active window is on screen 1'
             self._window_screen = 1
         else:
-            print 'Active window is on screen 2'
+            #print 'Active window is on screen 2'
             self._window_screen = 2
 
         move_method = getattr(self, 'move_'+direction)
-        print 'Moving window to: %s' % direction
+        #print 'Moving window to: %s' % direction
         move_method(window)
 
 
