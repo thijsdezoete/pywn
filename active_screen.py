@@ -180,13 +180,13 @@ class Producivity(object):
 if __name__ == '__main__':
     x = Producivity()
     x.init()
-    keystr_right = "<Ctrl><Shift>Right"
+    keystr_right = "<Super>Right"
     keybinder.bind(keystr_right, x.main, "right")
-    keystr_left = "<Ctrl><Shift>Left"
+    keystr_left = "<Super>Left"
     keybinder.bind(keystr_left, x.main, "left")
-    keystr_left = "<Ctrl><Shift>Down"
+    keystr_left = "<Super>Down"
     keybinder.bind(keystr_left, x.main, "down")
-    keystr_left = "<Ctrl><Shift>Up"
+    keystr_left = "<Super>Up"
     keybinder.bind(keystr_left, x.main, "up")
     try:
         gtk.main()
