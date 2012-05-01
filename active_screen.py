@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 import wnck
 import gtk, keybinder
 import pdb
@@ -112,19 +113,19 @@ class Producivity(object):
 
     def detect_screens(self):
         import commands
-        (exitcode, test) = commands.getstatusoutput("xrandr | grep ' connected'")
+        (exitcode, commandoutput) = commands.getstatusoutput("xrandr | grep ' connected'")
 
         windows = {}
         incr = 1
 
         #FUGLY! REFACTOR CANDIDATE!
-        for entry in test.split("\n"):
+        for entry in commandoutput.split("\n"):
             windows[incr] = {}
             first_occ = entry.split('x', 1)
-            blah = first_occ[0].split(' ')
-            for words in blah:
-                if words.isdigit():
-                    windows[incr]['width'] = int(words)
+            lst_of_words = first_occ[0].split(' ')
+            for word in lst_of_words:
+                if word.isdigit():
+                    windows[incr]['width'] = int(word)
             windows[incr]['height'] = int(first_occ[1].split('+')[0])
             incr = incr +1
 
@@ -147,6 +148,11 @@ class Producivity(object):
         self.screen = wnck.screen_get_default()
         self.ws = WindowState()
 
+    def silent_shutdown(self):
+        self.screen = None
+        if 'wnck_shutdown' in dir(wnck):
+            wnck.wnck_shutdown()
+
 
     def main(self, direction):
         self.screen.force_update()
@@ -161,7 +167,7 @@ class Producivity(object):
             return 
 
         state = self.ws.get_windowstate(window.get_xid())
-        #print state
+
         # screen 1 or 2?
         (wX, wY, wWidth, wHeight) = window.get_client_window_geometry()
         #print "Window now:\nx: %s, y: %s, width: %s, height: %s" % (wX, wY, wWidth, wHeight)
@@ -178,18 +184,19 @@ class Producivity(object):
 
 
 if __name__ == '__main__':
+    MagicKey = '<Super>'
     x = Producivity()
     x.init()
-    keystr_right = "<Super>Right"
+    keystr_right = MagicKey+"Right"
     keybinder.bind(keystr_right, x.main, "right")
-    keystr_left = "<Super>Left"
+    keystr_left = MagicKey+"Left"
     keybinder.bind(keystr_left, x.main, "left")
-    keystr_left = "<Super>Down"
+    keystr_left = MagicKey+"Down"
     keybinder.bind(keystr_left, x.main, "down")
-    keystr_left = "<Super>Up"
+    keystr_left = MagicKey+"Up"
     keybinder.bind(keystr_left, x.main, "up")
     try:
         gtk.main()
     except KeyboardInterrupt, e:
-        wnck.wnck_shutdown()
+        x.silent_shutdown()
         exit()
