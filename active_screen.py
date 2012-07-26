@@ -9,7 +9,7 @@ class WindowState(object):
     _windows = {}
 
     def set_windowstate(self, window, newstate):
-        print newstate
+        #print newstate
         self._windows[window] = newstate
 
     def get_windowstate(self, window):
@@ -134,7 +134,7 @@ class Producivity(object):
 
         return windows
 
-    def init(self):
+    def __init__(self):
         screens = self.detect_screens()
         for i in range(0, len(screens)):
             n = i + 1
@@ -187,7 +187,7 @@ class Producivity(object):
 if __name__ == '__main__':
     MagicKey = '<Super>'
     x = Producivity()
-    x.init()
+    #x.init()
     keystr_right = MagicKey + "Right"
     keybinder.bind(keystr_right, x.main, "right")
     keystr_left = MagicKey + "Left"
