@@ -2,3 +2,7 @@ PYWN (pronounced pwn)
 is a window productivity program, which can be run in the background. 
 
 Use super+[arrowkeys] to move screens around on your desktop
+
+
+# Install:
+sudo apt-get install python-wnck python-keybinder
