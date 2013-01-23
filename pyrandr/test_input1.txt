@@ -1,0 +1,13 @@
+Screen 0: minimum 320 x 200, current 1024 x 768, maximum 1920 x 1440
+VGA connected (normal left inverted right)
+   1920x1440@60   60.0
+   1920x1440      60.0
+   1600x1200@60   60.0
+   1600x1200      60.0
+   1280x960       60.0
+   640x480@60     60.0
+LVDS connected 1024x768+0+0 (normal left inverted right) 304mm x 228mm
+   1024x768       60.0*+   50.0
+   800x600        60.3
+   640x480        60.0     59.9
+TV disconnected (normal left inverted right)

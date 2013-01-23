@@ -1,7 +1,8 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 import wnck
 import gtk
 import keybinder
+import appindicator
 #import pdb
 
 
@@ -20,7 +21,7 @@ class WindowState(object):
         return state
 
 
-class Producivity(object):
+class Productivity(object):
     def active_window(self, windowlist):
         for window in windowlist:
             if window.is_active():
@@ -185,17 +186,36 @@ class Producivity(object):
 
 
 if __name__ == '__main__':
-    MagicKey = '<Super>'
-    x = Producivity()
+    MagicKey = '<Super><Alt>'
+    x = Productivity()
     #x.init()
     keystr_right = MagicKey + "Right"
-    keybinder.bind(keystr_right, x.main, "right")
     keystr_left = MagicKey + "Left"
-    keybinder.bind(keystr_left, x.main, "left")
     keystr_left = MagicKey + "Down"
-    keybinder.bind(keystr_left, x.main, "down")
     keystr_left = MagicKey + "Up"
+
+    keybinder.bind(keystr_right, x.main, "right")
+    keybinder.bind(keystr_left, x.main, "left")
+    keybinder.bind(keystr_left, x.main, "down")
     keybinder.bind(keystr_left, x.main, "up")
+
+    status_bar = appindicator.Indicator("Some indicator",
+        "Message?",
+        appindicator.CATEGORY_APPLICATION_STATUS)
+    status_bar.set_status(appindicator.STATUS_ACTIVE)
+    status_bar.set_attention_icon("indicator-messages-new")
+    some_menu = gtk.Menu()
+
+    for i in range(3):
+        rnd_txt = "Test menu item #%s" % i
+        some_element = gtk.MenuItem(rnd_txt)
+        #some_element.connect("activate", callback, rnd_txt)
+
+        some_menu.append(some_element)
+        some_element.show()
+
+    status_bar.set_menu(some_menu)
+
     try:
         gtk.main()
     except KeyboardInterrupt, e:
